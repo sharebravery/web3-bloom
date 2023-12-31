@@ -27,7 +27,7 @@ contract PlantFactory is Ownable {
      * @param plantType 植物类型
      * @param plantName 植物名称
      * @param plantSpecies 植物品种
-     * @return 新植物合约地址
+     * @return 新植物ID
      */
     function createPlant(
         PlantType plantType,

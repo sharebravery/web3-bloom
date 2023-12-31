@@ -11,15 +11,20 @@ import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 contract ElectronicPlantBase {
     using EnumerableSet for EnumerableSet.UintSet;
 
-    // 植物状态
-    struct Plant {
+    // 植物信息
+    struct PlantMetadata {
         string plantName;
         string plantSpecies;
+        uint256 creationTime;
+    }
+
+    // 植物状态
+    struct Plant {
         uint8 waterLevel; // 0~100
         uint8 lightLevel; // 0~100
         bool isAlive;
         PlantStage currentStage;
-        uint256 creationTime;
+        PlantMetadata metadata;
     }
 
     // 植物生长阶段
@@ -108,13 +113,13 @@ contract ElectronicPlantBase {
         )
     {
         return (
-            plantMap[plantId].plantName,
-            plantMap[plantId].plantSpecies,
+            plantMap[plantId].metadata.plantName,
+            plantMap[plantId].metadata.plantSpecies,
             plantMap[plantId].waterLevel,
             plantMap[plantId].lightLevel,
             plantMap[plantId].isAlive,
             plantMap[plantId].currentStage,
-            plantMap[plantId].creationTime
+            plantMap[plantId].metadata.creationTime
         );
     }
 
@@ -218,13 +223,15 @@ contract ElectronicPlantBase {
 
         // 创建新植物
         plantMap[plantId] = Plant({
-            plantName: plantName,
-            plantSpecies: plantSpecies,
             waterLevel: 0,
             lightLevel: 0,
             isAlive: true,
             currentStage: PlantStage.Seed,
-            creationTime: creationTime
+            metadata: PlantMetadata({
+                plantName: plantName,
+                plantSpecies: plantSpecies,
+                creationTime: creationTime
+            })
         });
 
         // 将植物ID添加到集合中

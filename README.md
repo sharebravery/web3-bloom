@@ -4,6 +4,16 @@
 
 公共合约，提供植物基础功能
 
+### PlantMetadata
+
+```solidity
+struct PlantMetadata {
+  string plantName;
+  string plantSpecies;
+  uint256 creationTime;
+}
+```
+
 ### Plant
 
 ```solidity
@@ -12,6 +22,7 @@ struct Plant {
   uint8 lightLevel;
   bool isAlive;
   enum ElectronicPlantBase.PlantStage currentStage;
+  struct ElectronicPlantBase.PlantMetadata metadata;
 }
 ```
 
@@ -108,7 +119,7 @@ function _checkPlantHealth(uint256 plantId) internal
 ### getPlantStatus
 
 ```solidity
-function getPlantStatus(uint256 plantId) public view returns (uint8, uint8, bool, enum ElectronicPlantBase.PlantStage)
+function getPlantStatus(uint256 plantId) public view returns (string, string, uint8, uint8, bool, enum ElectronicPlantBase.PlantStage, uint256)
 ```
 
 获取植物状态信息
@@ -123,10 +134,13 @@ function getPlantStatus(uint256 plantId) public view returns (uint8, uint8, bool
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| [0] | uint8 | waterLevel 水分级别 |
-| [1] | uint8 | lightLevel 光照级别 |
-| [2] | bool | isAlive 植物是否存活 |
-| [3] | enum ElectronicPlantBase.PlantStage | currentStage 当前生长阶段 |
+| [0] | string | plantName 植物名称 |
+| [1] | string | plantSpecies 植物品种 |
+| [2] | uint8 | waterLevel 水分级别 |
+| [3] | uint8 | lightLevel 光照级别 |
+| [4] | bool | isAlive 植物是否存活 |
+| [5] | enum ElectronicPlantBase.PlantStage | currentStage 当前生长阶段 |
+| [6] | uint256 | creationTime 植物创建时间 |
 
 ### waterPlant
 
@@ -172,6 +186,22 @@ function growPlant(uint256 plantId) public
 | ---- | ---- | ----------- |
 | plantId | uint256 | 植物ID |
 
+### createPlant
+
+```solidity
+function createPlant(string plantName, string plantSpecies, uint256 creationTime) external returns (uint256)
+```
+
+创建植物并返回植物ID
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| plantName | string | 植物名称 |
+| plantSpecies | string | 植物品种 |
+| creationTime | uint256 | 植物的创建时间  记录植物合约创建的时间戳 |
+
 ### getPlantIds
 
 ```solidity
@@ -187,7 +217,17 @@ function getPlantIds() external view returns (uint256[])
 ### plantContracts
 
 ```solidity
-mapping(uint256 => address) plantContracts
+mapping(uint8 => address) plantContracts
+```
+
+### PlantType
+
+```solidity
+enum PlantType {
+  Flower,
+  Tree,
+  Shrub
+}
 ```
 
 ### constructor
@@ -199,7 +239,7 @@ constructor(address initialOwner) public
 ### createPlant
 
 ```solidity
-function createPlant(uint256 plantType) external returns (address)
+function createPlant(enum PlantFactory.PlantType plantType, string plantName, string plantSpecies) external returns (uint256)
 ```
 
 创建植物
@@ -208,18 +248,20 @@ function createPlant(uint256 plantType) external returns (address)
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| plantType | uint256 | 植物类型 |
+| plantType | enum PlantFactory.PlantType | 植物类型 |
+| plantName | string | 植物名称 |
+| plantSpecies | string | 植物品种 |
 
 #### Return Values
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| [0] | address | 新植物合约地址 |
+| [0] | uint256 | 新植物ID |
 
 ### getPlantContractAddress
 
 ```solidity
-function getPlantContractAddress(uint256 plantType) external view returns (address)
+function getPlantContractAddress(uint8 plantType) external view returns (address)
 ```
 
 获取植物合约地址
@@ -228,13 +270,32 @@ function getPlantContractAddress(uint256 plantType) external view returns (addre
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| plantType | uint256 | 植物类型 |
+| plantType | uint8 | 植物类型 |
 
 #### Return Values
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | [0] | address | 植物合约地址 |
+
+## ResultLibrary
+
+统一处理
+
+### Result
+
+```solidity
+struct Result {
+  uint256 value;
+  string message;
+}
+```
+
+### createResult
+
+```solidity
+function createResult(uint256 _value, string _message) internal pure returns (struct ResultLibrary.Result)
+```
 
 ## MoneyTree
 
@@ -345,23 +406,4 @@ constructor(struct SevenDayFlower.PlantAttributes params) public
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | params | struct SevenDayFlower.PlantAttributes | 创建植物的参数 |
-
-## ResultLibrary
-
-统一处理
-
-### Result
-
-```solidity
-struct Result {
-  uint256 value;
-  string message;
-}
-```
-
-### createResult
-
-```solidity
-function createResult(uint256 _value, string _message) internal pure returns (struct ResultLibrary.Result)
-```
 
