@@ -11,13 +11,16 @@ async function main() {
 
   console.log("Deploying ElectronicPlantBase with account:", deployer.address);
 
-  // 部署 ElectronicPlantBase 合约
   const ElectronicPlantBase = await ethers.getContractFactory("ElectronicPlantBase");
   const electronicPlantBase = await ElectronicPlantBase.deploy();
-
   await electronicPlantBase.waitForDeployment();
 
+  const PlantFactory = await ethers.getContractFactory("PlantFactory");
+  const plantFactory = await PlantFactory.deploy(await electronicPlantBase.getAddress());
+  await plantFactory.waitForDeployment();
+
   console.log("ElectronicPlantBase deployed to:", await electronicPlantBase.getAddress());
+  console.log("PlantFactory deployed to:", await plantFactory.getAddress());
 
   console.log(
     `Lock with ${ethers.formatEther(

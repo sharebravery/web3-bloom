@@ -26,10 +26,10 @@ enum PlantStage {
 }
 ```
 
-### plants
+### plantMap
 
 ```solidity
-mapping(uint256 => struct ElectronicPlantBase.Plant) plants
+mapping(uint256 => struct ElectronicPlantBase.Plant) plantMap
 ```
 
 ### PlantWatered
@@ -180,24 +180,61 @@ function getPlantIds() external view returns (uint256[])
 
 获取植物ID集合
 
-## ResultLibrary
+## PlantFactory
 
-统一处理
+创建不同类型植物的工厂合约
 
-### Result
-
-```solidity
-struct Result {
-  uint256 value;
-  string message;
-}
-```
-
-### createResult
+### plantContracts
 
 ```solidity
-function createResult(uint256 _value, string _message) internal pure returns (struct ResultLibrary.Result)
+mapping(uint256 => address) plantContracts
 ```
+
+### constructor
+
+```solidity
+constructor(address initialOwner) public
+```
+
+### createPlant
+
+```solidity
+function createPlant(uint256 plantType) external returns (address)
+```
+
+创建植物
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| plantType | uint256 | 植物类型 |
+
+#### Return Values
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| [0] | address | 新植物合约地址 |
+
+### getPlantContractAddress
+
+```solidity
+function getPlantContractAddress(uint256 plantType) external view returns (address)
+```
+
+获取植物合约地址
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| plantType | uint256 | 植物类型 |
+
+#### Return Values
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| [0] | address | 植物合约地址 |
 
 ## MoneyTree
 
@@ -308,4 +345,23 @@ constructor(struct SevenDayFlower.PlantAttributes params) public
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | params | struct SevenDayFlower.PlantAttributes | 创建植物的参数 |
+
+## ResultLibrary
+
+统一处理
+
+### Result
+
+```solidity
+struct Result {
+  uint256 value;
+  string message;
+}
+```
+
+### createResult
+
+```solidity
+function createResult(uint256 _value, string _message) internal pure returns (struct ResultLibrary.Result)
+```
 

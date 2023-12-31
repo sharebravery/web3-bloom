@@ -13,10 +13,13 @@ contract ElectronicPlantBase {
 
     // 植物状态
     struct Plant {
-        uint8 waterLevel;
-        uint8 lightLevel;
+        string plantName;
+        string plantSpecies;
+        uint8 waterLevel; // 0~100
+        uint8 lightLevel; // 0~100
         bool isAlive;
         PlantStage currentStage;
+        uint256 creationTime;
     }
 
     // 植物生长阶段
@@ -80,10 +83,13 @@ contract ElectronicPlantBase {
     /**
      * @notice 获取植物状态信息
      * @param plantId 植物ID
+     * @return plantName 植物名称
+     * @return plantSpecies 植物品种
      * @return waterLevel 水分级别
      * @return lightLevel 光照级别
      * @return isAlive 植物是否存活
      * @return currentStage 当前生长阶段
+     * @return creationTime 植物创建时间
      */
     function getPlantStatus(
         uint256 plantId
@@ -91,13 +97,24 @@ contract ElectronicPlantBase {
         public
         view
         plantExists(plantId)
-        returns (uint8, uint8, bool, PlantStage)
+        returns (
+            string memory,
+            string memory,
+            uint8,
+            uint8,
+            bool,
+            PlantStage,
+            uint256
+        )
     {
         return (
+            plantMap[plantId].plantName,
+            plantMap[plantId].plantSpecies,
             plantMap[plantId].waterLevel,
             plantMap[plantId].lightLevel,
             plantMap[plantId].isAlive,
-            plantMap[plantId].currentStage
+            plantMap[plantId].currentStage,
+            plantMap[plantId].creationTime
         );
     }
 
@@ -184,6 +201,36 @@ contract ElectronicPlantBase {
 
         // 更新植物状态
         _checkPlantHealth(plantId);
+    }
+
+    /**
+     * 创建植物并返回植物ID
+     * @param plantName 植物名称
+     * @param plantSpecies 植物品种
+     * @param creationTime 植物的创建时间  记录植物合约创建的时间戳
+     */
+    function createPlant(
+        string memory plantName,
+        string memory plantSpecies,
+        uint256 creationTime
+    ) external returns (uint256) {
+        uint256 plantId = _plantIds.length() + 1;
+
+        // 创建新植物
+        plantMap[plantId] = Plant({
+            plantName: plantName,
+            plantSpecies: plantSpecies,
+            waterLevel: 0,
+            lightLevel: 0,
+            isAlive: true,
+            currentStage: PlantStage.Seed,
+            creationTime: creationTime
+        });
+
+        // 将植物ID添加到集合中
+        _plantIds.add(plantId);
+
+        return plantId;
     }
 
     /**
