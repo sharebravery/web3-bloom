@@ -20,6 +20,9 @@ devDependencies:
   '@nomicfoundation/hardhat-verify':
     specifier: 2.0.0
     version: 2.0.0(hardhat@2.19.4)
+  '@openzeppelin/contracts':
+    specifier: ^5.0.1
+    version: 5.0.1
   '@typechain/ethers-v6':
     specifier: 0.5.0
     version: 0.5.0(ethers@6.4.0)(typechain@8.3.0)(typescript@5.3.3)
@@ -50,6 +53,9 @@ devDependencies:
   solidity-coverage:
     specifier: 0.8.0
     version: 0.8.0(hardhat@2.19.4)
+  solidity-docgen:
+    specifier: 0.6.0-beta.36
+    version: 0.6.0-beta.36(hardhat@2.19.4)
   ts-node:
     specifier: ^10.9.2
     version: 10.9.2(@types/node@20.10.6)(typescript@5.3.3)
@@ -841,6 +847,10 @@ packages:
       '@nomicfoundation/solidity-analyzer-win32-x64-msvc': 0.1.1
     dev: true
 
+  /@openzeppelin/contracts@5.0.1:
+    resolution: {integrity: sha512-yQJaT5HDp9hYOOp4jTYxMsR02gdFZFXhewX5HW9Jo4fsqSVqqyIO/xTHdWDaKX5a3pv1txmf076Lziz+sO7L1w==}
+    dev: true
+
   /@scure/base@1.1.5:
     resolution: {integrity: sha512-Brj9FiG2W1MRQSTB212YVPRrcbjkv48FoZi/u4l/zds/ieRrqsh7aUf6CLwkAq61oKXr/ZlTzlY66gLIj3TFTQ==}
     dev: true
@@ -1260,6 +1270,17 @@ packages:
   /array-uniq@1.0.3:
     resolution: {integrity: sha512-MNha4BWQ6JbwhFhj03YK552f7cb3AzoE8SzeljgChvL1dl3IcvggXVz1DilzySZkCja+CXuZbdW7yATchWn8/Q==}
     engines: {node: '>=0.10.0'}
+    dev: true
+
+  /array.prototype.findlast@1.2.3:
+    resolution: {integrity: sha512-kcBubumjciBg4JKp5KTKtI7ec7tRefPk88yjkWJwaVKYd9QfTaxcsOxoMNKd7iBr447zCfDV0z1kOF47umv42g==}
+    engines: {node: '>= 0.4'}
+    dependencies:
+      call-bind: 1.0.5
+      define-properties: 1.2.1
+      es-abstract: 1.22.3
+      es-shim-unscopables: 1.0.2
+      get-intrinsic: 1.2.2
     dev: true
 
   /array.prototype.reduce@1.0.6:
@@ -1959,6 +1980,12 @@ packages:
       hasown: 2.0.0
     dev: true
 
+  /es-shim-unscopables@1.0.2:
+    resolution: {integrity: sha512-J3yBRXCzDu4ULnQwxyToo/OjdMx6akgVC7K6few0a7F/0wLtmKKN7I73AH5T2836UuXRqN7Qg+IIUw/+YJksRw==}
+    dependencies:
+      hasown: 2.0.0
+    dev: true
+
   /es-to-primitive@1.2.1:
     resolution: {integrity: sha512-QCOllgZJtaUo9miYBcLChTUaHNjJF3PYs1VidD7AwiEj1kYxKeQTctLAezAOH5ZKRH0g2IgPn6KwB4IT8iRpvA==}
     engines: {node: '>= 0.4'}
@@ -2146,7 +2173,7 @@ packages:
     resolution: {integrity: sha512-nksaMCwX+BOdV2NQ1/57OehSD2JtujbhrdC2+Fb9VpvBO0WO6h+WWwu3oMMw7aUiTa5lvQcWX1vl4aOy7Q3CTg==}
     engines: {node: '>=14.0.0'}
     dependencies:
-      '@adraffy/ens-normalize': git@github.com+ricmoo/ens-normalize.js/2d040533e57e4f25f9a7cc4715e219658ad454b5
+      '@adraffy/ens-normalize': github.com/ricmoo/ens-normalize.js/2d040533e57e4f25f9a7cc4715e219658ad454b5
       '@noble/hashes': 1.1.2
       '@noble/secp256k1': 1.7.1
       '@types/node': 18.15.13
@@ -3945,6 +3972,12 @@ packages:
       - debug
     dev: true
 
+  /solidity-ast@0.4.55:
+    resolution: {integrity: sha512-qeEU/r/K+V5lrAw8iswf2/yfWAnSGs3WKPHI+zAFKFjX0dIBVXEU/swQ8eJQYHf6PJWUZFO2uWV4V1wEOkeQbA==}
+    dependencies:
+      array.prototype.findlast: 1.2.3
+    dev: true
+
   /solidity-coverage@0.8.0(hardhat@2.19.4):
     resolution: {integrity: sha512-z5vXnaDzp66e7ik/UoOc5ViL1qXGZ0LrS0GDf1LRLX8F9TfNX/s9IdMwlV8wDh/ZJwYF5SbXG1nYeb0jfyyK3Q==}
     hasBin: true
@@ -3973,6 +4006,16 @@ packages:
       shelljs: 0.8.5
     transitivePeerDependencies:
       - supports-color
+    dev: true
+
+  /solidity-docgen@0.6.0-beta.36(hardhat@2.19.4):
+    resolution: {integrity: sha512-f/I5G2iJgU1h0XrrjRD0hHMr7C10u276vYvm//rw1TzFcYQ4xTOyAoi9oNAHRU0JU4mY9eTuxdVc2zahdMuhaQ==}
+    peerDependencies:
+      hardhat: ^2.8.0
+    dependencies:
+      handlebars: 4.7.8
+      hardhat: 2.19.4(ts-node@10.9.2)(typescript@5.3.3)
+      solidity-ast: 0.4.55
     dev: true
 
   /source-map-support@0.5.21:
@@ -4662,8 +4705,8 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  git@github.com+ricmoo/ens-normalize.js/2d040533e57e4f25f9a7cc4715e219658ad454b5:
-    resolution: {commit: 2d040533e57e4f25f9a7cc4715e219658ad454b5, repo: git@github.com:ricmoo/ens-normalize.js.git, type: git}
+  github.com/ricmoo/ens-normalize.js/2d040533e57e4f25f9a7cc4715e219658ad454b5:
+    resolution: {tarball: https://codeload.github.com/ricmoo/ens-normalize.js/tar.gz/2d040533e57e4f25f9a7cc4715e219658ad454b5}
     name: '@adraffy/ens-normalize'
     version: 1.9.0
     dev: true

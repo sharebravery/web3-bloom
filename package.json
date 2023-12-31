@@ -8,7 +8,8 @@
     "start": "npx hardhat node",
     "build": "npx hardhat compile",
     "deploy": "npx hardhat run scripts/deploy.ts",
-    "test": "npx hardhat test"
+    "test": "npx hardhat test",
+    "gen:docs": "npx hardhat docgen"
   },
   "keywords": [],
   "author": "",
@@ -19,6 +20,7 @@
     "@nomicfoundation/hardhat-network-helpers": "1.0.0",
     "@nomicfoundation/hardhat-toolbox": "4.0.0",
     "@nomicfoundation/hardhat-verify": "2.0.0",
+    "@openzeppelin/contracts": "^5.0.1",
     "@typechain/ethers-v6": "0.5.0",
     "@typechain/hardhat": "9.0.0",
     "@types/chai": "4.2.0",
@@ -29,6 +31,7 @@
     "hardhat": "^2.19.4",
     "hardhat-gas-reporter": "1.0.8",
     "solidity-coverage": "0.8.0",
+    "solidity-docgen": "0.6.0-beta.36",
     "ts-node": "^10.9.2",
     "typechain": "8.3.0",
     "typescript": "^5.3.3"

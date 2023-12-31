@@ -6,16 +6,23 @@ async function main() {
 
   const lockedAmount = ethers.parseEther("0.001");
 
-  const lock = await ethers.deployContract("Lock", [unlockTime], {
-    value: lockedAmount,
-  });
+  // 获取部署账户
+  const [deployer] = await ethers.getSigners();
 
-  await lock.waitForDeployment();
+  console.log("Deploying ElectronicPlantBase with account:", deployer.address);
+
+  // 部署 ElectronicPlantBase 合约
+  const ElectronicPlantBase = await ethers.getContractFactory("ElectronicPlantBase");
+  const electronicPlantBase = await ElectronicPlantBase.deploy();
+
+  await electronicPlantBase.waitForDeployment();
+
+  console.log("ElectronicPlantBase deployed to:", await electronicPlantBase.getAddress());
 
   console.log(
     `Lock with ${ethers.formatEther(
       lockedAmount
-    )}ETH and unlock timestamp ${unlockTime} deployed to ${lock.target}`
+    )}ETH and unlock timestamp ${unlockTime} deployed to ${electronicPlantBase.target}`
   );
 }
 
