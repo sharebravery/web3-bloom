@@ -16,20 +16,35 @@ contract PlantFactory is Ownable {
     constructor(address initialOwner) Ownable(initialOwner) {}
 
     /**
-     * @notice 创建植物
-     * @param plantContractAddress 植物合约地址
-     * @param plantName 植物名称
-     * @param plantSpecies 植物品种
-     * @return 新植物ID
+     * 植物元信息
+     * @param plantContractAddress 植物名称
+     * @param plantCreationData 植物品种
+     */
+    struct PlantCreationData {
+        string plantName;
+        PlantBase.PlantSpecies plantSpecies;
+    }
+
+    /**
+     * 创建植物
+     * @param plantContractAddress 植物合约地址 （预留扩展的 后续可用plants目录下的植物合约进行植物行为定制）
+     * @param plantCreationData 植物元信息
      */
     function createPlant(
         address plantContractAddress,
-        string memory plantName,
-        PlantBase.PlantSpecies plantSpecies
+        PlantCreationData memory plantCreationData
     ) external returns (uint256) {
         require(
             plantContractAddress != address(0),
             "Invalid plant contract address"
+        );
+
+        // 检查植物种类的有效性
+        require(
+            plantCreationData.plantSpecies == PlantBase.PlantSpecies.Flower ||
+                plantCreationData.plantSpecies == PlantBase.PlantSpecies.Tree ||
+                plantCreationData.plantSpecies == PlantBase.PlantSpecies.Shrub,
+            "Invalid plant species"
         );
 
         PlantBase plantContract = PlantBase(plantContractAddress);
@@ -37,8 +52,8 @@ contract PlantFactory is Ownable {
         uint256 creationTime = block.timestamp;
 
         uint256 plantId = plantContract.createPlant(
-            plantName,
-            plantSpecies,
+            plantCreationData.plantName,
+            plantCreationData.plantSpecies,
             creationTime
         );
 

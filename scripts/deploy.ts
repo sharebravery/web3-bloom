@@ -9,23 +9,23 @@ async function main() {
   // 获取部署账户
   const [deployer] = await ethers.getSigners();
 
-  console.log("Deploying ElectronicPlantBase with account:", deployer.address);
+  console.log("Deploying PlantBase with account:", deployer.address);
 
-  const ElectronicPlantBase = await ethers.getContractFactory("ElectronicPlantBase");
-  const electronicPlantBase = await ElectronicPlantBase.deploy();
-  await electronicPlantBase.waitForDeployment();
+  const PlantBase = await ethers.getContractFactory("PlantBase");
+  const plantBase = await PlantBase.deploy();
+  await plantBase.waitForDeployment();
 
   const PlantFactory = await ethers.getContractFactory("PlantFactory");
-  const plantFactory = await PlantFactory.deploy(await electronicPlantBase.getAddress());
+  const plantFactory = await PlantFactory.deploy(await plantBase.getAddress());
   await plantFactory.waitForDeployment();
 
-  console.log("ElectronicPlantBase deployed to:", await electronicPlantBase.getAddress());
+  console.log("PlantBase deployed to:", await plantBase.getAddress());
   console.log("PlantFactory deployed to:", await plantFactory.getAddress());
 
   console.log(
     `Lock with ${ethers.formatEther(
       lockedAmount
-    )}ETH and unlock timestamp ${unlockTime} deployed to ${electronicPlantBase.target}`
+    )}ETH and unlock timestamp ${unlockTime} deployed to ${plantBase.target}`
   );
 }
 

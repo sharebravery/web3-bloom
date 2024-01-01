@@ -266,10 +266,26 @@ mapping(address => address) userPlantContracts
 constructor(address initialOwner) public
 ```
 
+### PlantCreationData
+
+植物元信息
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+
+```solidity
+struct PlantCreationData {
+  string plantName;
+  enum PlantBase.PlantSpecies plantSpecies;
+}
+```
+
 ### createPlant
 
 ```solidity
-function createPlant(address plantContractAddress, string plantName, enum PlantBase.PlantSpecies plantSpecies) external returns (uint256)
+function createPlant(address plantContractAddress, struct PlantFactory.PlantCreationData plantCreationData) external returns (uint256)
 ```
 
 创建植物
@@ -278,15 +294,8 @@ function createPlant(address plantContractAddress, string plantName, enum PlantB
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| plantContractAddress | address | 植物合约地址 |
-| plantName | string | 植物名称 |
-| plantSpecies | enum PlantBase.PlantSpecies | 植物品种 |
-
-#### Return Values
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | uint256 | 新植物ID |
+| plantContractAddress | address | 植物合约地址 （预留扩展的 后续可用plants目录下的植物合约进行植物行为定制） |
+| plantCreationData | struct PlantFactory.PlantCreationData | 植物元信息 |
 
 ### getUserPlantContractAddress
 
@@ -307,44 +316,6 @@ function getUserPlantContractAddress(address userAddress) external view returns 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | [0] | address | 用户植物合约地址 |
-
-## MoneyTree
-
-摇钱树植物的实现
-
-### PlantCreationParams
-
-结构体，用于组织创建植物时的参数
-
-```solidity
-struct PlantCreationParams {
-  uint256 customAttribute;
-  string color;
-  string shape;
-  uint8 growthSpeed;
-  string name;
-}
-```
-
-### plantAttributes
-
-```solidity
-struct MoneyTree.PlantCreationParams plantAttributes
-```
-
-### constructor
-
-```solidity
-constructor(struct MoneyTree.PlantCreationParams params) public
-```
-
-构造函数，初始化摇钱树
-
-#### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| params | struct MoneyTree.PlantCreationParams | 创建植物的参数 |
 
 ## PingPongChrysanthemum
 
@@ -417,6 +388,63 @@ constructor(struct SevenDayFlower.PlantAttributes params) public
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | params | struct SevenDayFlower.PlantAttributes | 创建植物的参数 |
+
+## ResultLibrary
+
+统一处理
+
+### Result
+
+```solidity
+struct Result {
+  uint256 value;
+  string message;
+}
+```
+
+### createResult
+
+```solidity
+function createResult(uint256 _value, string _message) internal pure returns (struct ResultLibrary.Result)
+```
+
+## MoneyTree
+
+摇钱树植物的实现
+
+### PlantCreationParams
+
+结构体，用于组织创建植物时的参数
+
+```solidity
+struct PlantCreationParams {
+  uint256 customAttribute;
+  string color;
+  string shape;
+  uint8 growthSpeed;
+  string name;
+}
+```
+
+### plantAttributes
+
+```solidity
+struct MoneyTree.PlantCreationParams plantAttributes
+```
+
+### constructor
+
+```solidity
+constructor(struct MoneyTree.PlantCreationParams params) public
+```
+
+构造函数，初始化摇钱树
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| params | struct MoneyTree.PlantCreationParams | 创建植物的参数 |
 
 ## ElectronicPlantBase
 
@@ -627,23 +655,4 @@ function getPlantIds() external view returns (uint256[])
 ```
 
 获取植物ID集合
-
-## ResultLibrary
-
-统一处理
-
-### Result
-
-```solidity
-struct Result {
-  uint256 value;
-  string message;
-}
-```
-
-### createResult
-
-```solidity
-function createResult(uint256 _value, string _message) internal pure returns (struct ResultLibrary.Result)
-```
 
