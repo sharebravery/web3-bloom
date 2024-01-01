@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.20;
 
-import "../ElectronicPlantBase.sol";
+import "../PlantBase.sol";
 
 /**
  * @title MoneyTree 摇钱树合约
  * @author sharebravery
  * @notice 摇钱树植物的实现
  */
-contract MoneyTree is ElectronicPlantBase {
+contract MoneyTree is PlantBase {
     /**
      * @notice 结构体，用于组织创建植物时的参数
      */

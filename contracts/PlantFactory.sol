@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./ElectronicPlantBase.sol";
+import "./PlantBase.sol";
 
 /**
  * @title PlantFactory 植物工厂合约
@@ -11,32 +11,28 @@ import "./ElectronicPlantBase.sol";
  */
 contract PlantFactory is Ownable {
     // 存储创建的 ElectronicPlantBase 合约地址
-    mapping(uint8 => address) public plantContracts;
-
-    // 植物种类
-    enum PlantType {
-        Flower,
-        Tree,
-        Shrub
-    }
+    mapping(address => address) public userPlantContracts;
 
     constructor(address initialOwner) Ownable(initialOwner) {}
 
     /**
      * @notice 创建植物
-     * @param plantType 植物类型
+     * @param plantContractAddress 植物合约地址
      * @param plantName 植物名称
      * @param plantSpecies 植物品种
      * @return 新植物ID
      */
     function createPlant(
-        PlantType plantType,
+        address plantContractAddress,
         string memory plantName,
-        string memory plantSpecies
-    ) external onlyOwner returns (uint256) {
-        require(uint8(plantType) <= 2, "Invalid plant type"); // Adjust the limit based on the number of plant types
+        PlantBase.PlantSpecies plantSpecies
+    ) external returns (uint256) {
+        require(
+            plantContractAddress != address(0),
+            "Invalid plant contract address"
+        );
 
-        ElectronicPlantBase plantContract = new ElectronicPlantBase();
+        PlantBase plantContract = PlantBase(plantContractAddress);
         // 设置新属性的值
         uint256 creationTime = block.timestamp;
 
@@ -46,19 +42,19 @@ contract PlantFactory is Ownable {
             creationTime
         );
 
-        plantContracts[uint8(plantType)] = address(plantContract);
+        userPlantContracts[msg.sender] = plantContractAddress;
 
         return plantId;
     }
 
     /**
-     * @notice 获取植物合约地址
-     * @param plantType 植物类型
-     * @return 植物合约地址
+     * @notice 获取用户植物合约地址
+     * @param userAddress 用户地址
+     * @return 用户植物合约地址
      */
-    function getPlantContractAddress(
-        uint8 plantType
+    function getUserPlantContractAddress(
+        address userAddress
     ) external view returns (address) {
-        return plantContracts[plantType];
+        return userPlantContracts[userAddress];
     }
 }

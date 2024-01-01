@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.20;
 
-import "../ElectronicPlantBase.sol";
+import "../PlantBase.sol";
 import "../PlantFactory.sol";
 
 /**
@@ -9,7 +9,7 @@ import "../PlantFactory.sol";
  * @author sharebravery
  * @notice 乒乓菊植物的实现
  */
-contract PingPongChrysanthemum is ElectronicPlantBase {
+contract PingPongChrysanthemum is PlantBase {
     struct PlantCreationParams {
         uint256 customAttribute;
         string color;

@@ -4,17 +4,24 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 /**
- * @title ElectronicPlantBase 植物基础公共合约
+ * @title Plant 植物基础公共合约
  * @author sharebravery
  * @notice 公共合约，提供植物基础功能
  */
-contract ElectronicPlantBase {
+contract PlantBase {
     using EnumerableSet for EnumerableSet.UintSet;
+
+    // 植物品种
+    enum PlantSpecies {
+        Flower,
+        Tree,
+        Shrub
+    }
 
     // 植物信息
     struct PlantMetadata {
         string plantName;
-        string plantSpecies;
+        PlantSpecies plantSpecies;
         uint256 creationTime;
     }
 
@@ -97,13 +104,15 @@ contract ElectronicPlantBase {
      * @return currentStage 当前生长阶段
      * @return creationTime 植物创建时间
      */
-    function getPlantStatus(uint256 plantId)
+    function getPlantStatus(
+        uint256 plantId
+    )
         public
         view
         plantExistsAndAlive(plantId)
         returns (
             string memory,
-            string memory,
+            PlantSpecies,
             uint8,
             uint8,
             bool,
@@ -127,10 +136,10 @@ contract ElectronicPlantBase {
      * @param plantId 植物ID
      * @param waterAmount 水量
      */
-    function waterPlant(uint256 plantId, uint8 waterAmount)
-        public
-        plantExistsAndAlive(plantId)
-    {
+    function waterPlant(
+        uint256 plantId,
+        uint8 waterAmount
+    ) public plantExistsAndAlive(plantId) {
         // 合并状态更新操作
         _updatePlantStatus(plantId, waterAmount, 0);
     }
@@ -140,10 +149,10 @@ contract ElectronicPlantBase {
      * @param plantId 植物ID
      * @param lightDuration 光照时长
      */
-    function provideLight(uint256 plantId, uint8 lightDuration)
-        public
-        plantExistsAndAlive(plantId)
-    {
+    function provideLight(
+        uint256 plantId,
+        uint8 lightDuration
+    ) public plantExistsAndAlive(plantId) {
         // 合并状态更新操作
         _updatePlantStatus(plantId, 0, lightDuration);
     }
@@ -165,7 +174,7 @@ contract ElectronicPlantBase {
      */
     function createPlant(
         string memory plantName,
-        string memory plantSpecies,
+        PlantSpecies plantSpecies,
         uint256 creationTime
     ) external returns (uint256) {
         uint256 plantId = _plantIds.length() + 1;
