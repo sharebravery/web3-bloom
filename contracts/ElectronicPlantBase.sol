@@ -63,11 +63,12 @@ contract ElectronicPlantBase {
     event PlantGrown(uint256 plantId, PlantStage newStage);
 
     /**
-     * 修饰器，确保植物存在
+     * 修饰器，确保植物存在且存活
      * @param plantId plantId
      */
-    modifier plantExists(uint256 plantId) {
+    modifier plantExistsAndAlive(uint256 plantId) {
         require(_plantIds.contains(plantId), "Plant does not exist");
+        require(plantMap[plantId].isAlive, "The plant is not alive.");
         _;
     }
 
@@ -96,12 +97,10 @@ contract ElectronicPlantBase {
      * @return currentStage 当前生长阶段
      * @return creationTime 植物创建时间
      */
-    function getPlantStatus(
-        uint256 plantId
-    )
+    function getPlantStatus(uint256 plantId)
         public
         view
-        plantExists(plantId)
+        plantExistsAndAlive(plantId)
         returns (
             string memory,
             string memory,
@@ -128,24 +127,12 @@ contract ElectronicPlantBase {
      * @param plantId 植物ID
      * @param waterAmount 水量
      */
-    function waterPlant(
-        uint256 plantId,
-        uint8 waterAmount
-    ) public plantExists(plantId) {
-        require(plantMap[plantId].isAlive, "The plant is not alive.");
-
-        // 更新水分级别
-        plantMap[plantId].waterLevel = uint8(
-            plantMap[plantId].waterLevel + waterAmount > 100
-                ? 100
-                : plantMap[plantId].waterLevel + waterAmount
-        );
-
-        // 发送事件，记录浇水行为
-        emit PlantWatered(plantId, waterAmount);
-
-        // 更新植物状态
-        _checkPlantHealth(plantId);
+    function waterPlant(uint256 plantId, uint8 waterAmount)
+        public
+        plantExistsAndAlive(plantId)
+    {
+        // 合并状态更新操作
+        _updatePlantStatus(plantId, waterAmount, 0);
     }
 
     /**
@@ -153,63 +140,25 @@ contract ElectronicPlantBase {
      * @param plantId 植物ID
      * @param lightDuration 光照时长
      */
-    function provideLight(
-        uint256 plantId,
-        uint8 lightDuration
-    ) public plantExists(plantId) {
-        require(plantMap[plantId].isAlive, "The plant is not alive.");
-
-        // 更新光照级别
-        plantMap[plantId].lightLevel = uint8(
-            plantMap[plantId].lightLevel + lightDuration > 100
-                ? 100
-                : plantMap[plantId].lightLevel + lightDuration
-        );
-
-        // 发送事件，记录提供光照行为
-        emit LightProvided(plantId, lightDuration);
-
-        // 更新植物状态
-        _checkPlantHealth(plantId);
+    function provideLight(uint256 plantId, uint8 lightDuration)
+        public
+        plantExistsAndAlive(plantId)
+    {
+        // 合并状态更新操作
+        _updatePlantStatus(plantId, 0, lightDuration);
     }
 
     /**
      * @notice 促使植物生长
      * @param plantId 植物ID
      */
-    function growPlant(uint256 plantId) public plantExists(plantId) {
-        require(plantMap[plantId].isAlive, "The plant is not alive.");
-
-        // 处理生长
-        if (
-            plantMap[plantId].currentStage == PlantStage.Seed &&
-            plantMap[plantId].waterLevel >= 20 &&
-            plantMap[plantId].lightLevel >= 20
-        ) {
-            plantMap[plantId].currentStage = PlantStage.Sprout;
-        } else if (
-            plantMap[plantId].currentStage == PlantStage.Sprout &&
-            plantMap[plantId].waterLevel >= 40 &&
-            plantMap[plantId].lightLevel >= 40
-        ) {
-            plantMap[plantId].currentStage = PlantStage.Mature;
-        } else if (
-            plantMap[plantId].currentStage == PlantStage.Mature &&
-            plantMap[plantId].waterLevel >= 60 &&
-            plantMap[plantId].lightLevel >= 60
-        ) {
-            plantMap[plantId].currentStage = PlantStage.Flower;
-        }
-
-        // 发送事件，记录生长行为
-        emit PlantGrown(plantId, plantMap[plantId].currentStage);
-
-        // 更新植物状态
-        _checkPlantHealth(plantId);
+    function growPlant(uint256 plantId) public plantExistsAndAlive(plantId) {
+        // 合并状态更新操作
+        _growPlant(plantId);
     }
 
     /**
-     * 创建植物并返回植物ID
+     * @notice 创建植物并返回植物ID
      * @param plantName 植物名称
      * @param plantSpecies 植物品种
      * @param creationTime 植物的创建时间  记录植物合约创建的时间戳
@@ -241,7 +190,7 @@ contract ElectronicPlantBase {
     }
 
     /**
-     * 获取植物ID集合
+     * @notice 获取植物ID集合
      */
     function getPlantIds() external view returns (uint256[] memory) {
         uint256[] memory plantIds = new uint256[](_plantIds.length());
@@ -249,5 +198,75 @@ contract ElectronicPlantBase {
             plantIds[i] = _plantIds.at(i);
         }
         return plantIds;
+    }
+
+    /**
+     * @notice 合并状态更新操作，减少 gas 消耗
+     * @param plantId 植物ID
+     * @param waterAmount 水量
+     * @param lightDuration 光照时长
+     */
+    function _updatePlantStatus(
+        uint256 plantId,
+        uint8 waterAmount,
+        uint8 lightDuration
+    ) internal {
+        require(plantMap[plantId].isAlive, "The plant is not alive.");
+
+        // 更新水分级别
+        plantMap[plantId].waterLevel = uint8(
+            plantMap[plantId].waterLevel + waterAmount > 100
+                ? 100
+                : plantMap[plantId].waterLevel + waterAmount
+        );
+
+        // 更新光照级别
+        plantMap[plantId].lightLevel = uint8(
+            plantMap[plantId].lightLevel + lightDuration > 100
+                ? 100
+                : plantMap[plantId].lightLevel + lightDuration
+        );
+
+        // 发送事件，记录状态更新行为
+        emit PlantWatered(plantId, waterAmount);
+        emit LightProvided(plantId, lightDuration);
+
+        // 更新植物状态
+        _checkPlantHealth(plantId);
+    }
+
+    /**
+     * @notice 促使植物生长
+     * @param plantId 植物ID
+     */
+    function _growPlant(uint256 plantId) internal {
+        require(plantMap[plantId].isAlive, "The plant is not alive.");
+
+        // 处理生长
+        if (
+            plantMap[plantId].currentStage == PlantStage.Seed &&
+            plantMap[plantId].waterLevel >= 20 &&
+            plantMap[plantId].lightLevel >= 20
+        ) {
+            plantMap[plantId].currentStage = PlantStage.Sprout;
+        } else if (
+            plantMap[plantId].currentStage == PlantStage.Sprout &&
+            plantMap[plantId].waterLevel >= 40 &&
+            plantMap[plantId].lightLevel >= 40
+        ) {
+            plantMap[plantId].currentStage = PlantStage.Mature;
+        } else if (
+            plantMap[plantId].currentStage == PlantStage.Mature &&
+            plantMap[plantId].waterLevel >= 60 &&
+            plantMap[plantId].lightLevel >= 60
+        ) {
+            plantMap[plantId].currentStage = PlantStage.Flower;
+        }
+
+        // 发送事件，记录生长行为
+        emit PlantGrown(plantId, plantMap[plantId].currentStage);
+
+        // 更新植物状态
+        _checkPlantHealth(plantId);
     }
 }
