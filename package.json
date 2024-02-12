@@ -7,9 +7,11 @@
     "dev": "npx hardhat node --hostname 192.168.78.1 --port 8545",
     "start": "npx hardhat node",
     "build": "npx hardhat compile",
-    "deploy": "pnpm build && npx hardhat run scripts/deploy.ts",
+    "deploy": "pnpm run build && npx hardhat run scripts/deploy.ts",
     "test": "npx hardhat test",
-    "gen:docs": "npx hardhat docgen"
+    "gen:docs": "npx hardhat docgen",
+    "console": "npx hardhat console --network hardhat",
+    "clean": "npx hardhat clean"
   },
   "keywords": [],
   "author": "",
