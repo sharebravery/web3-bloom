@@ -9,7 +9,7 @@ async function main() {
   // 获取部署账户
   const [deployer] = await ethers.getSigners();
 
-  console.log("Deploying PlantBase with account:", deployer.address);
+  console.log("Deploying contact with account:", deployer.address);
 
   const PlantBase = await ethers.getContractFactory("PlantBase");
   const plantBase = await PlantBase.deploy();

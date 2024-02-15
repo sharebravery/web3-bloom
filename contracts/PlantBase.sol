@@ -13,8 +13,8 @@ contract PlantBase {
 
     // 植物品种
     enum PlantSpecies {
-        Flower,
         Tree,
+        Flower,
         Shrub
     }
 
@@ -47,6 +47,8 @@ contract PlantBase {
 
     // 存储植物ID的集合
     EnumerableSet.UintSet private _plantIds;
+
+    mapping(address => uint256[]) public userPlantIds;
 
     /**
      * 事件，记录植物被浇水情况
@@ -177,7 +179,8 @@ contract PlantBase {
         PlantSpecies plantSpecies,
         uint256 creationTime
     ) external returns (uint256) {
-        uint256 plantId = _plantIds.length() + 1;
+        // uint256 plantId = _plantIds.length() + 1;
+        uint256 plantId = _plantIds.length();
 
         // 创建新植物
         plantMap[plantId] = Plant({
@@ -194,6 +197,10 @@ contract PlantBase {
 
         // 将植物ID添加到集合中
         _plantIds.add(plantId);
+
+        uint256[] storage array = userPlantIds[msg.sender];
+
+        array.push(plantId);
 
         return plantId;
     }
