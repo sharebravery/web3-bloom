@@ -15,12 +15,12 @@ async function main() {
   const plantBase = await PlantBase.deploy();
   await plantBase.waitForDeployment();
 
-  const PlantFactory = await ethers.getContractFactory("PlantFactory");
-  const plantFactory = await PlantFactory.deploy(await plantBase.getAddress());
-  await plantFactory.waitForDeployment();
+  // const PlantFactory = await ethers.getContractFactory("PlantFactory");
+  // const plantFactory = await PlantFactory.deploy(await plantBase.getAddress());
+  // await plantFactory.waitForDeployment();
 
   console.log("PlantBase deployed to:", await plantBase.getAddress());
-  console.log("PlantFactory deployed to:", await plantFactory.getAddress());
+  // console.log("PlantFactory deployed to:", await plantFactory.getAddress());
 
   console.log(
     `Lock with ${ethers.formatEther(
