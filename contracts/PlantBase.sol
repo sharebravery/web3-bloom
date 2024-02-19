@@ -70,8 +70,8 @@ contract PlantBase {
 
         // 创建新植物
         plantMap[plantId] = Plant({
-            waterLevel: 20,
-            lightLevel: 20,
+            waterLevel: 25,
+            lightLevel: 25,
             isAlive: true,
             currentStage: PlantStage.Seed,
             metadata: PlantMetadata({
@@ -116,7 +116,15 @@ contract PlantBase {
     )
         public
         view
-        returns (string memory, PlantSpecies, uint8, uint8, bool, PlantStage)
+        returns (
+            string memory,
+            PlantSpecies,
+            uint8,
+            uint8,
+            bool,
+            PlantStage,
+            uint256
+        )
     {
         require(_plantIds.contains(plantId), "Plant does not exist");
         require(plantMap[plantId].isAlive, "The plant is not alive.");
@@ -131,7 +139,8 @@ contract PlantBase {
             plantMap[plantId].waterLevel,
             plantMap[plantId].lightLevel,
             plantMap[plantId].isAlive,
-            plantMap[plantId].currentStage
+            plantMap[plantId].currentStage,
+            plantId
         );
     }
 
@@ -204,7 +213,7 @@ contract PlantBase {
             "Not the owner of the plant"
         );
 
-        // 处理生长
+        // 处理生长,
         if (
             plantMap[plantId].currentStage == PlantStage.Seed &&
             plantMap[plantId].waterLevel >= 20 &&
