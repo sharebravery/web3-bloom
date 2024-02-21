@@ -1,89 +1,109 @@
-// // SPDX-License-Identifier: GPL-3.0-or-later
-// pragma solidity ^0.8.20;
+// SPDX-License-Identifier: GPL-3.0-or-later
+pragma solidity ^0.8.0;
 
-// import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
-// import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-// import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 
-// /**
-//  * @title PlantNFT 植物标本NFT合约
-//  * @dev 基于 ERC721 标准
-//  */
-// contract PlantNFT is ERC721, Ownable {
-//     using EnumerableSet for EnumerableSet.UintSet;
+/**
+ * @title PlantNFT 植物标本NFT合约
+ * @dev 基于 ERC721 标准
+ */
+contract PlantNFT is ERC721Enumerable, Ownable {
+    uint256 public constant MAX_SUPPLY = 2100 * (10 ** 4);
+    uint256 public constant PRICE = 0.01 ether;
+    uint256 public constant MAX_PER_MINT = 10; // 单次可mint最大数量
 
-//     // 记录每种植物的下一个 tokenId
-//     mapping(string => uint256) private _nextTokenId;
+    uint256 private _nextTokenId;
 
-//     // 存储每种植物已经发行的 tokenId 集合
-//     mapping(string => EnumerableSet.UintSet) private _issuedTokens;
+    // string public baseTokenURI;
 
-//     /**
-//      * @notice 构造函数
-//      * @param name NFT的名称
-//      * @param symbol NFT的符号
-//      */
-//     constructor(
-//         string memory name,
-//         string memory symbol
-//     ) ERC721(name, symbol) {} // Pass name and symbol parameters to ERC721 constructor
+    constructor(
+        string memory _name,
+        string memory _symbol
+    ) ERC721(_name, _symbol) Ownable(msg.sender) {}
 
-//     /**
-//      * @notice 创建植物标本
-//      * @param plantType 植物类型
-//      * @param owner 标本的拥有者
-//      * @return 新标本的 tokenId
-//      */
-//     function createPlantSpecimen(
-//         string memory plantType,
-//         address owner
-//     ) external onlyOwner returns (uint256) {
-//         uint256 tokenId = _nextTokenId[plantType];
+    error Unauthorized();
+    error NotEnoughNFTs();
+    error NotEnoughEtherPurchaseNFTs();
+    error CannotMintSpecifiedNumber();
+    error CannotZeroBalance();
 
-//         // 确保 tokenId 未被使用
-//         require(
-//             !_issuedTokens[plantType].contains(tokenId),
-//             "Token already issued"
-//         );
+    // function setBaseTokenURI(string memory _baseURI) external onlyOwner {
+    //     baseTokenURI = _baseURI;
+    // }
 
-//         // 发行新的植物标本
-//         _safeMint(owner, tokenId);
+    function _mintSingleNFT() private {
+        uint256 tokenId = _nextTokenId;
+        _safeMint(msg.sender, tokenId);
+        _nextTokenId++;
+    }
 
-//         // 记录 tokenId 已被使用
-//         _issuedTokens[plantType].add(tokenId);
+    /**
+     * 铸造NFT
+     * @param _count 铸造数量
+     */
+    function mint(uint256 _count) public payable onlyOwner returns (uint256) {
+        if (_count == 0 || _count > MAX_PER_MINT) {
+            revert CannotMintSpecifiedNumber();
+        }
 
-//         // 增加下一个 tokenId
-//         _nextTokenId[plantType]++;
+        if (MAX_SUPPLY - _nextTokenId < _count) {
+            revert NotEnoughNFTs();
+        }
 
-//         return tokenId;
-//     }
+        // if (msg.value < PRICE * _count) {
+        //     revert NotEnoughEtherPurchaseNFTs();
+        // }
 
-//     /**
-//      * @notice 获取指定类型植物的已发行标本数量
-//      * @param plantType 植物类型
-//      * @return 已发行标本数量
-//      */
-//     function getIssuedSpecimenCount(
-//         string memory plantType
-//     ) external view returns (uint256) {
-//         return _issuedTokens[plantType].length();
-//     }
+        for (uint256 i = 0; i < _count; i++) {
+            _mintSingleNFT();
+        }
 
-//     /**
-//      * @notice 获取指定类型植物的所有标本 tokenId
-//      * @param plantType 植物类型
-//      * @return 所有标本 tokenId
-//      */
-//     function getAllSpecimenIds(
-//         string memory plantType
-//     ) external view returns (uint256[] memory) {
-//         uint256 length = _issuedTokens[plantType].length();
-//         uint256[] memory ids = new uint256[](length);
+        return _nextTokenId;
+    }
 
-//         for (uint256 i = 0; i < length; i++) {
-//             ids[i] = _issuedTokens[plantType].at(i);
-//         }
+    /**
+     *  预留NFT
+     * @param _count 保留NFT数量
+     */
+    function reserveNFTs(uint256 _count) public onlyOwner {
+        if (_count + _nextTokenId > MAX_SUPPLY) {
+            revert NotEnoughNFTs();
+        }
 
-//         return ids;
-//     }
-// }
+        for (uint256 i = 0; i < _count; i++) {
+            _mintSingleNFT();
+        }
+    }
+
+    /**
+     * 获取一个特定账户所拥有的所有代币
+     * @param _owner 拥有者
+     */
+    function getTokensOfOwner(
+        address _owner
+    ) external view returns (uint256[] memory) {
+        uint256 tokenCount = balanceOf(_owner);
+        uint256[] memory tokenIdList = new uint256[](tokenCount);
+
+        for (uint256 i = 0; i < tokenCount; i++) {
+            tokenIdList[i] = tokenOfOwnerByIndex(_owner, i);
+        }
+
+        return tokenIdList;
+    }
+
+    /**
+     * 提取合约余额
+     */
+    function withdraw() external onlyOwner {
+        uint256 _balance = address(this).balance;
+
+        if (_balance <= 0) {
+            revert CannotZeroBalance();
+        }
+
+        address payable ownerPayable = payable(owner());
+        ownerPayable.transfer(_balance);
+    }
+}
