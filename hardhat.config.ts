@@ -24,7 +24,7 @@ const config: HardhatUserConfig = {
     // },
     sepolia: {
       url: "https://polygon-mumbai.g.alchemy.com/v2/k_wjgD_vDNows-mCiUJ_ikKh-0Gd2c0C",
-      accounts: ['a9990f25bf4b7e310b40e83af5e2c367983df2bf0d188a5bc58e77e2fc0c3423']
+      accounts: []
     }
   },
 };

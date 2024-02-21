@@ -15,7 +15,8 @@ contract PlantNFT is ERC721Enumerable, Ownable {
 
     uint256 private _nextTokenId;
 
-    // string public baseTokenURI;
+    string public baseTokenURI;
+    mapping(uint256 => string) private _tokenURIs;
 
     constructor(
         string memory _name,
@@ -28,9 +29,19 @@ contract PlantNFT is ERC721Enumerable, Ownable {
     error CannotMintSpecifiedNumber();
     error CannotZeroBalance();
 
-    // function setBaseTokenURI(string memory _baseURI) external onlyOwner {
-    //     baseTokenURI = _baseURI;
-    // }
+    function _baseURI() internal view virtual override returns (string memory) {
+        return baseTokenURI;
+    }
+
+    function setBaseURI(string memory _baseTokenURI) public onlyOwner {
+        baseTokenURI = _baseTokenURI;
+    }
+
+    function tokenURI(
+        uint256 tokenId
+    ) public view override returns (string memory) {
+        return string(abi.encodePacked(baseTokenURI, _tokenURIs[tokenId]));
+    }
 
     function _mintSingleNFT() private {
         uint256 tokenId = _nextTokenId;
@@ -50,10 +61,6 @@ contract PlantNFT is ERC721Enumerable, Ownable {
         if (MAX_SUPPLY - _nextTokenId < _count) {
             revert NotEnoughNFTs();
         }
-
-        // if (msg.value < PRICE * _count) {
-        //     revert NotEnoughEtherPurchaseNFTs();
-        // }
 
         for (uint256 i = 0; i < _count; i++) {
             _mintSingleNFT();

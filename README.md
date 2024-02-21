@@ -1,15 +1,183 @@
 # Solidity API
 
+## PlantNFT
+
+_基于 ERC721 标准_
+
+### MAX_SUPPLY
+
+```solidity
+uint256 MAX_SUPPLY
+```
+
+### PRICE
+
+```solidity
+uint256 PRICE
+```
+
+### MAX_PER_MINT
+
+```solidity
+uint256 MAX_PER_MINT
+```
+
+### baseTokenURI
+
+```solidity
+string baseTokenURI
+```
+
+### constructor
+
+```solidity
+constructor(string _name, string _symbol) public
+```
+
+### Unauthorized
+
+```solidity
+error Unauthorized()
+```
+
+### NotEnoughNFTs
+
+```solidity
+error NotEnoughNFTs()
+```
+
+### NotEnoughEtherPurchaseNFTs
+
+```solidity
+error NotEnoughEtherPurchaseNFTs()
+```
+
+### CannotMintSpecifiedNumber
+
+```solidity
+error CannotMintSpecifiedNumber()
+```
+
+### CannotZeroBalance
+
+```solidity
+error CannotZeroBalance()
+```
+
+### _baseURI
+
+```solidity
+function _baseURI() internal view virtual returns (string)
+```
+
+_Base URI for computing {tokenURI}. If set, the resulting URI for each
+token will be the concatenation of the `baseURI` and the `tokenId`. Empty
+by default, can be overridden in child contracts._
+
+### setBaseURI
+
+```solidity
+function setBaseURI(string _baseTokenURI) public
+```
+
+### tokenURI
+
+```solidity
+function tokenURI(uint256 tokenId) public view returns (string)
+```
+
+_See {IERC721Metadata-tokenURI}._
+
+### mint
+
+```solidity
+function mint(uint256 _count) public payable returns (uint256)
+```
+
+铸造NFT
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| _count | uint256 | 铸造数量 |
+
+### reserveNFTs
+
+```solidity
+function reserveNFTs(uint256 _count) public
+```
+
+预留NFT
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| _count | uint256 | 保留NFT数量 |
+
+### getTokensOfOwner
+
+```solidity
+function getTokensOfOwner(address _owner) external view returns (uint256[])
+```
+
+获取一个特定账户所拥有的所有代币
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| _owner | address | 拥有者 |
+
+### withdraw
+
+```solidity
+function withdraw() external
+```
+
+提取合约余额
+
 ## PlantBase
 
 公共合约，提供植物基础功能
+
+### PlantWatered
+
+```solidity
+event PlantWatered(uint256 plantId, uint8 waterAmount)
+```
+
+### LightProvided
+
+```solidity
+event LightProvided(uint256 plantId, uint8 lightDuration)
+```
+
+### PlantGrown
+
+```solidity
+event PlantGrown(uint256 plantId, enum PlantBase.PlantStage newStage)
+```
+
+### PlantHarvested
+
+```solidity
+event PlantHarvested(uint256 plantId, address reciver)
+```
+
+### PlantTransferred
+
+```solidity
+event PlantTransferred(uint256 plantId, address form, address to)
+```
 
 ### PlantSpecies
 
 ```solidity
 enum PlantSpecies {
-  Flower,
   Tree,
+  Flower,
   Shrub
 }
 ```
@@ -20,7 +188,6 @@ enum PlantSpecies {
 struct PlantMetadata {
   string plantName;
   enum PlantBase.PlantSpecies plantSpecies;
-  uint256 creationTime;
 }
 ```
 
@@ -43,7 +210,8 @@ enum PlantStage {
   Seed,
   Sprout,
   Mature,
-  Flower
+  Flower,
+  Harvest
 }
 ```
 
@@ -53,78 +221,42 @@ enum PlantStage {
 mapping(uint256 => struct PlantBase.Plant) plantMap
 ```
 
-### PlantWatered
+### userPlantIds
 
 ```solidity
-event PlantWatered(uint256 plantId, uint8 waterAmount)
+mapping(address => uint256[]) userPlantIds
 ```
 
-事件，记录植物被浇水情况
+### createPlant
+
+```solidity
+function createPlant(string plantName, enum PlantBase.PlantSpecies plantSpecies) external returns (uint256)
+```
+
+创建植物并返回植物ID
 
 #### Parameters
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| plantId | uint256 | plantId |
-| waterAmount | uint8 | 水量 |
+| plantName | string | 植物名称 |
+| plantSpecies | enum PlantBase.PlantSpecies | 植物品种 |
 
-### LightProvided
-
-```solidity
-event LightProvided(uint256 plantId, uint8 lightDuration)
-```
-
-事件，记录植物被提供光照情况
-
-#### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| plantId | uint256 | plantId |
-| lightDuration | uint8 | 光照时长 |
-
-### PlantGrown
+### getUserPlantIds
 
 ```solidity
-event PlantGrown(uint256 plantId, enum PlantBase.PlantStage newStage)
+function getUserPlantIds() external view returns (uint256[])
 ```
 
-事件，记录植物生长阶段变化
+获取用户地址拥有的植物ID数组
 
-#### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| plantId | uint256 | plantId |
-| newStage | enum PlantBase.PlantStage | newStage |
-
-### plantExistsAndAlive
+### getPlantIds
 
 ```solidity
-modifier plantExistsAndAlive(uint256 plantId)
+function getPlantIds() external view returns (uint256[])
 ```
 
-修饰器，确保植物存在且存活
-
-#### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| plantId | uint256 | plantId |
-
-### _checkPlantHealth
-
-```solidity
-function _checkPlantHealth(uint256 plantId) internal
-```
-
-内部方法，检查植物健康状况
-
-#### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| plantId | uint256 | plantId |
+获取植物ID集合
 
 ### getPlantStatus
 
@@ -139,18 +271,6 @@ function getPlantStatus(uint256 plantId) public view returns (string, enum Plant
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | plantId | uint256 | 植物ID |
-
-#### Return Values
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| [0] | string | plantName 植物名称 |
-| [1] | enum PlantBase.PlantSpecies | plantSpecies 植物品种 |
-| [2] | uint8 | waterLevel 水分级别 |
-| [3] | uint8 | lightLevel 光照级别 |
-| [4] | bool | isAlive 植物是否存活 |
-| [5] | enum PlantBase.PlantStage | currentStage 当前生长阶段 |
-| [6] | uint256 | creationTime 植物创建时间 |
 
 ### waterPlant
 
@@ -182,44 +302,6 @@ function provideLight(uint256 plantId, uint8 lightDuration) public
 | plantId | uint256 | 植物ID |
 | lightDuration | uint8 | 光照时长 |
 
-### growPlant
-
-```solidity
-function growPlant(uint256 plantId) public
-```
-
-促使植物生长
-
-#### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| plantId | uint256 | 植物ID |
-
-### createPlant
-
-```solidity
-function createPlant(string plantName, enum PlantBase.PlantSpecies plantSpecies, uint256 creationTime) external returns (uint256)
-```
-
-创建植物并返回植物ID
-
-#### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| plantName | string | 植物名称 |
-| plantSpecies | enum PlantBase.PlantSpecies | 植物品种 |
-| creationTime | uint256 | 植物的创建时间  记录植物合约创建的时间戳 |
-
-### getPlantIds
-
-```solidity
-function getPlantIds() external view returns (uint256[])
-```
-
-获取植物ID集合
-
 ### _updatePlantStatus
 
 ```solidity
@@ -250,72 +332,113 @@ function _growPlant(uint256 plantId) internal
 | ---- | ---- | ----------- |
 | plantId | uint256 | 植物ID |
 
-## PlantFactory
-
-创建不同类型植物的工厂合约
-
-### userPlantContracts
+### _checkPlantHealth
 
 ```solidity
-mapping(address => address) userPlantContracts
+function _checkPlantHealth(uint256 plantId) internal
 ```
 
-### constructor
-
-```solidity
-constructor(address initialOwner) public
-```
-
-### PlantCreationData
-
-植物元信息
+检查植物是否健康，如果水分或光照不足，植物将死亡
 
 #### Parameters
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
+| plantId | uint256 | 植物ID |
+
+### _isPlantOwner
 
 ```solidity
-struct PlantCreationData {
-  string plantName;
-  enum PlantBase.PlantSpecies plantSpecies;
-}
+function _isPlantOwner(address userAddress, uint256 plantId) internal view returns (bool)
 ```
 
-### createPlant
-
-```solidity
-function createPlant(address plantContractAddress, struct PlantFactory.PlantCreationData plantCreationData) external returns (uint256)
-```
-
-创建植物
-
-#### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| plantContractAddress | address | 植物合约地址 （预留扩展的 后续可用plants目录下的植物合约进行植物行为定制） |
-| plantCreationData | struct PlantFactory.PlantCreationData | 植物元信息 |
-
-### getUserPlantContractAddress
-
-```solidity
-function getUserPlantContractAddress(address userAddress) external view returns (address)
-```
-
-获取用户植物合约地址
+检查用户是否拥有指定植物
 
 #### Parameters
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | userAddress | address | 用户地址 |
+| plantId | uint256 | 植物ID |
 
-#### Return Values
+### harvestPlant
+
+```solidity
+function harvestPlant(uint256 plantId) public
+```
+
+收获植物
+
+#### Parameters
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| [0] | address | 用户植物合约地址 |
+| plantId | uint256 | plant id |
+
+### transferPlant
+
+```solidity
+function transferPlant(address to, uint256 plantId) public
+```
+
+以下为交易植物功能
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| to | address | to |
+| plantId | uint256 | plantId |
+
+### _removePlantOwnership
+
+```solidity
+function _removePlantOwnership(address from, uint256 plantId) internal
+```
+
+### _addPlantOwnership
+
+```solidity
+function _addPlantOwnership(address to, uint256 plantId) internal
+```
+
+## MoneyTree
+
+摇钱树植物的实现
+
+### PlantCreationParams
+
+结构体，用于组织创建植物时的参数
+
+```solidity
+struct PlantCreationParams {
+  uint256 customAttribute;
+  string color;
+  string shape;
+  uint8 growthSpeed;
+  string name;
+}
+```
+
+### plantAttributes
+
+```solidity
+struct MoneyTree.PlantCreationParams plantAttributes
+```
+
+### constructor
+
+```solidity
+constructor(struct MoneyTree.PlantCreationParams params) public
+```
+
+构造函数，初始化摇钱树
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| params | struct MoneyTree.PlantCreationParams | 创建植物的参数 |
 
 ## PingPongChrysanthemum
 
@@ -407,44 +530,6 @@ struct Result {
 ```solidity
 function createResult(uint256 _value, string _message) internal pure returns (struct ResultLibrary.Result)
 ```
-
-## MoneyTree
-
-摇钱树植物的实现
-
-### PlantCreationParams
-
-结构体，用于组织创建植物时的参数
-
-```solidity
-struct PlantCreationParams {
-  uint256 customAttribute;
-  string color;
-  string shape;
-  uint8 growthSpeed;
-  string name;
-}
-```
-
-### plantAttributes
-
-```solidity
-struct MoneyTree.PlantCreationParams plantAttributes
-```
-
-### constructor
-
-```solidity
-constructor(struct MoneyTree.PlantCreationParams params) public
-```
-
-构造函数，初始化摇钱树
-
-#### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| params | struct MoneyTree.PlantCreationParams | 创建植物的参数 |
 
 ## ElectronicPlantBase
 
