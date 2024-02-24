@@ -11,7 +11,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 contract PlantNFT is ERC721Enumerable, Ownable {
     uint256 public constant MAX_SUPPLY = 2100 * (10 ** 4);
     uint256 public constant PRICE = 0.01 ether;
-    uint256 public constant MAX_PER_MINT = 10; // 单次可mint最大数量
+    uint256 public constant MAX_SINGLE_MINT = 10; // 单次可mint最大数量
 
     uint256 private _nextTokenId;
 
@@ -29,6 +29,7 @@ contract PlantNFT is ERC721Enumerable, Ownable {
     error CannotMintSpecifiedNumber();
     error CannotZeroBalance();
 
+    // 无聊猿 ipfs://QmeSjSinHpPnmXmspMjwiXyN6zS4E9zccariGR3jxcaWtq/
     function _baseURI() internal view virtual override returns (string memory) {
         return baseTokenURI;
     }
@@ -53,9 +54,13 @@ contract PlantNFT is ERC721Enumerable, Ownable {
      * 铸造NFT
      * @param _count 铸造数量
      */
-    function mint(uint256 _count) public payable onlyOwner returns (uint256) {
-        if (_count == 0 || _count > MAX_PER_MINT) {
+    function mint(uint256 _count) public payable returns (uint256) {
+        if (_count == 0 || _count > MAX_SINGLE_MINT) {
             revert CannotMintSpecifiedNumber();
+        }
+
+        if (msg.value < _count * PRICE) {
+            revert NotEnoughEtherPurchaseNFTs();
         }
 
         if (MAX_SUPPLY - _nextTokenId < _count) {
@@ -84,7 +89,7 @@ contract PlantNFT is ERC721Enumerable, Ownable {
     }
 
     /**
-     * 获取一个特定账户所拥有的所有代币
+     * 查询用户所拥有的代币
      * @param _owner 拥有者
      */
     function getTokensOfOwner(
